@@ -5,6 +5,7 @@ const gallery = document.querySelector('.gallery');
 const API_KEY = '36975406-14cef0b651718033f414d4154';
 const BASE_URL = 'https://pixabay.com/api/';
 const loadButton = document.querySelector('.load-more');
+let totalHits;
 
 const getData = async function () {
   loadButton.classList.remove('visible');
@@ -60,6 +61,7 @@ const getData = async function () {
   markupField.insertAdjacentHTML('beforeend', markup);
   //and add a "load more" button
   loadButton.classList.add('visible');
+  totalHits = data.totalHits;
   return data;
 };
 let q;
@@ -91,6 +93,17 @@ function submitedInput(event) {
 function loadMore() {
   page += 1;
   console.log(page);
+  console.log(totalHits);
+  let limit = 40;
+  let totalPages = totalHits / limit;
+  console.log(totalPages);
+  if (page > totalPages) {
+    Notiflix.Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
+    loadButton.classList.remove('visible');
+    return
+  }
   getData().catch(error => {
     Notiflix.Notify.failure('Oops! Something went wrong. Please, try again.');
     console.log(error);
