@@ -1,4 +1,15 @@
 import Notiflix from 'notiflix';
+// import {
+//   axios,
+//   API_KEY,
+//   BASE_URL,
+//   response,
+//   textInput,
+//   q,
+//   page,
+// } from './getData';
+
+const axios = require('axios').default;
 
 const searchForm = document.querySelector('.search-form');
 const gallery = document.querySelector('.gallery');
@@ -9,14 +20,13 @@ let totalHits;
 
 const getData = async function () {
   loadButton.classList.remove('visible');
-  const response = await fetch(
+  const response = await axios.get(
     `${BASE_URL}?key=${API_KEY}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`
   );
-  if (!response.ok) {
-    Notiflix.Notify.failure('Oops! Something went wrong. Please, try again.');
-    throw new Error(response.statusText);
-  }
-  const data = await response.json();
+  // response;
+  console.log(response);
+  const data = response.data;
+  console.log(data);
   if (data.total == 0) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -84,14 +94,22 @@ function submitedInput(event) {
   galleryField.classList.add('gallery-field');
   gallery.prepend(galleryField);
   //then we fill it with information
-  getData().catch(error => {
-    Notiflix.Notify.failure('Oops! Something went wrong. Please, try again.');
-    console.log(error);
-  });
+  getData()
+    .then(() => {
+      //hiding a button
+      let limit = 40;
+      let totalPages = totalHits / limit;
+      if (page > totalPages) {
+        loadButton.classList.remove('visible');
+      }
+    })
+    .catch(error => {
+      Notiflix.Notify.failure('Oops! Something went wrong. Please, try again.');
+      console.log(error);
+    });
 }
 
 function loadMore() {
-  page += 1;
   console.log(page);
   console.log(totalHits);
   let limit = 40;
@@ -102,8 +120,9 @@ function loadMore() {
       "We're sorry, but you've reached the end of search results."
     );
     loadButton.classList.remove('visible');
-    return
+    return;
   }
+  page += 1;
   getData().catch(error => {
     Notiflix.Notify.failure('Oops! Something went wrong. Please, try again.');
     console.log(error);
